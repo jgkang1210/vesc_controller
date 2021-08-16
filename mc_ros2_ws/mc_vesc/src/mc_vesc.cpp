@@ -1,7 +1,8 @@
 // 16.Aug.2021
 // Jungill Kang
 
-#include "mc_vesc/mc_vesc.hpp"
+#include <stdexcept>
+#include <mc_vesc/mc_vesc.hpp>
 
 // for the binding function
 using std::placeholders::_1;
@@ -18,18 +19,23 @@ McVesc::McVesc()
   // initiallize the uart comm port
   // RS485 : "/dev/ttyTHS1" 
   // USB : "/dev/ttyACM01"
-  fd_ = open_serial("/dev/ttyACM01", 115200, 0, 0);
-  // open error
-  if (fd_ < 0)
-        return -2;
+  try
+  {
+    fd_ = open_serial("/dev/ttyACM01", 115200, 0, 0);
+    // open error
+    if (fd_ < 0)
+      throw std::invalid_argument("Can't open serial port");
+  }
+  catch (std::invalid_argument & e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
 
   set_motor_brake(fd_, 1);
 
   // 100Hz velocity command
   uart_timer_ = this->create_wall_timer(
     10ms, std::bind(&McVesc::uart_pub_callback, this));
-
-  
 }
 
 McVesc::~McVesc()
@@ -98,19 +104,19 @@ void McVesc::close_serial(int fd) { close(fd); }
 
 void McVesc::uart_pub_callback() const
 {
-  set_motor_vel(fd, MotorID::MOTOR1, rpm_);
+  set_motor_vel(fd_, MotorID::MOTOR1, rpm_);
 
   RCLCPP_INFO(this->get_logger(), "PUB rpm : %f", rpm_);
 }
 
-void McVesc::cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg) const
+void McVesc::cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   rpm_ = (msg->linear.x) * 100;
 
   RCLCPP_INFO(this->get_logger(), "GET : %f", msg->linear.x);
 }
 
-void McVesc::set_motor_release(int fd, unsigned char ID)
+void McVesc::set_motor_release(int fd, unsigned char ID) const
 {
   unsigned char outbuff[8];
   outbuff[0] = 0xff;
@@ -124,7 +130,7 @@ void McVesc::set_motor_release(int fd, unsigned char ID)
   write(fd, outbuff, 8);
 }
 
-void McVesc::motor_flush(int fd)
+void McVesc::motor_flush(int fd) const
 {
   unsigned char outbuff[8];
   outbuff[0] = 0xfc;
@@ -138,7 +144,7 @@ void McVesc::motor_flush(int fd)
   write(fd, outbuff, 8);
 }
 
-void McVesc::set_motor_brake(int fd, unsigned char ID)
+void McVesc::set_motor_brake(int fd, unsigned char ID) const
 {
   unsigned char outbuff[8];
   outbuff[0] = 0xff;
@@ -152,7 +158,7 @@ void McVesc::set_motor_brake(int fd, unsigned char ID)
   write(fd, outbuff, 8);
 }
 
-void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity)
+void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity) const
 {
   unsigned char outbuff[8];
 
@@ -163,9 +169,11 @@ void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity)
 
   static_assert(sizeof(float) == 4);
 
-  std::memcpy(&outbuff[4], &velocity, sizeof(float));
+  memcpy(&outbuff[4], &velocity, sizeof(float));
 
   RCLCPP_INFO(this->get_logger(), "mem value : %c %c %c %c", outbuff[4], outbuff[5], outbuff[6], outbuff[7]);
+
+  write(fd, outbuff, 8);
 }
 
 } // namespace end

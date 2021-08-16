@@ -31,7 +31,7 @@
 
 #include <string.h>
 
-#define MOTOR_ID 0x01
+#define MOTOR_ID 0x00
 
 static volatile unsigned char instruction = 0;
 static volatile unsigned char vel0 = 0;
@@ -165,8 +165,19 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
             // set the velocity controller
             // void mc_interface_set_pid_speed(float rpm);
             else{
+                float rpm = 0;
+                unsigned char buff[4];
 
-                mc_interface_set_pid_speed();
+                buff[0] = vel0;
+                buff[1] = vel1;
+                buff[2] = vel2;
+                buff[3] = vel3;
+
+                static_assert(sizeof(float) == 4);
+
+                memcpy(&rpm, &buff[4], sizeof(float));
+
+                mc_interface_set_pid_speed(rpm);
             }
         }
         // Run this loop at 500Hz

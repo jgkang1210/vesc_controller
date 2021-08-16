@@ -58,13 +58,13 @@ private:
   void close_serial(int fd);
 
   void uart_pub_callback() const;
-  void cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg) const;
+  void cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
 
   // motor control
-  void set_motor_release(int fd, unsigned char ID);
-  void motor_flush(int fd);
-  void set_motor_brake(int fd, unsigned char ID);
-  void set_motor_vel(int fd, unsigned char ID, float velocity);
+  void set_motor_release(int fd, unsigned char ID) const;
+  void motor_flush(int fd) const;
+  void set_motor_brake(int fd, unsigned char ID) const;
+  void set_motor_vel(int fd, unsigned char ID, float velocity) const;
 
   // member variable def
   // member variable def
