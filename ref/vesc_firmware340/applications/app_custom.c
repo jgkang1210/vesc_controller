@@ -182,7 +182,7 @@ static THD_FUNCTION(example_thread, arg) {
 				u_Pos.base |= ((uint32_t)(pos3)) << (8 * 3);
 				//commands_printf("set pid pos : %f\r\n", u_Pos.real);
 				mc_interface_set_pid_pos(u_Pos.real);
-			}
+				}
 			receive_comp = false;
 		}
 		else {
