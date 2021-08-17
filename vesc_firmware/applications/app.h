@@ -79,6 +79,6 @@ float app_pas_get_current_target_rel(void);
 // Custom apps
 void app_custom_start(void);
 void app_custom_stop(void);
-void app_custom_configure(app_configuration *conf);
+// void app_custom_configure(app_configuration *conf);
 
 #endif /* APP_H_ */

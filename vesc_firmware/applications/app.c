@@ -64,9 +64,9 @@ void app_set_configuration(app_configuration *conf) {
 	comm_can_set_baud(conf->can_baud_rate);
 #endif
 
-#ifdef APP_CUSTOM_TO_USE
+// #ifdef APP_CUSTOM_TO_USE
 	app_custom_stop();
-#endif
+// #endif
 
 	imu_init(&conf->imu_conf);
 
@@ -129,9 +129,9 @@ void app_set_configuration(app_configuration *conf) {
 
 	case APP_CUSTOM:
 		app_custom_start();
-#ifdef APP_CUSTOM_TO_USE
-		hw_stop_i2c();	
-#endif
+//#ifdef APP_CUSTOM_TO_USE
+//		hw_stop_i2c();	
+//#endif
 		break;
 
 	default:
@@ -144,9 +144,9 @@ void app_set_configuration(app_configuration *conf) {
 	app_uartcomm_configure(appconf.app_uart_baudrate, appconf.permanent_uart_enabled);
 	app_nunchuk_configure(&appconf.app_chuk_conf);
 
-#ifdef APP_CUSTOM_TO_USE
-	app_custom_configure(&appconf);
-#endif
+// #ifdef APP_CUSTOM_TO_USE
+//	app_custom_configure(&appconf);
+// #endif
 
 	rfhelp_update_conf(&appconf.app_nrf_conf);
 }
