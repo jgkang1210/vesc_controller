@@ -171,7 +171,15 @@ void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity) const
 
   memcpy(&outbuff[4], &velocity, sizeof(float));
 
+  float buff;
+
+  memcpy(&outbuff[4], &velocity, sizeof(float));
+
   RCLCPP_INFO(this->get_logger(), "mem value : %c %c %c %c", outbuff[4], outbuff[5], outbuff[6], outbuff[7]);
+
+  memcpy(&buff, &outbuff[4], sizeof(float));
+
+  RCLCPP_INFO(this->get_logger(), "mem value(float) : %f", buff);
 
   write(fd, outbuff, 8);
 }
