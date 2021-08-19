@@ -21,21 +21,31 @@ McVesc::McVesc()
   // USB : "/dev/ttyACM01"
   try
   {
-    fd_ = open_serial("/dev/ttyACM01", 115200, 0, 0);
+    fd_ = open_serial("/dev/ttyUSB0", 115200, 0, 0);
+
+    RCLCPP_INFO(this->get_logger(), "open");
     // open error
     if (fd_ < 0)
+    {
+      RCLCPP_ERROR(this->get_logger(), "Can't open serial port");
       throw std::invalid_argument("Can't open serial port");
+      rclcpp::shutdown();
+    }
   }
   catch (std::invalid_argument & e)
   {
     std::cerr << e.what() << std::endl;
+    close_serial(fd_);
   }
 
+
+  if(fd_ > 0){
   set_motor_brake(fd_, 1);
 
   // 100Hz velocity command
   uart_timer_ = this->create_wall_timer(
     10ms, std::bind(&McVesc::uart_pub_callback, this));
+  }
 }
 
 McVesc::~McVesc()
@@ -50,6 +60,8 @@ int McVesc::open_serial(char *dev_name, int baud, int vtime, int vmin)
   // open serial port
   // fd = open(dev_name, O_RDWR | O_NOCTTY);
   fd = open(dev_name, O_WRONLY | O_NOCTTY);
+
+  RCLCPP_INFO(this->get_logger(), "%d", fd);
 
   if (fd < 0)
   {
@@ -113,7 +125,7 @@ void McVesc::cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg
 {
   rpm_ = (msg->linear.x) * 100;
 
-  RCLCPP_INFO(this->get_logger(), "GET : %f", msg->linear.x);
+  // RCLCPP_INFO(this->get_logger(), "GET : %f", msg->linear.x);
 }
 
 void McVesc::set_motor_release(int fd, unsigned char ID) const
@@ -171,15 +183,7 @@ void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity) const
 
   memcpy(&outbuff[4], &velocity, sizeof(float));
 
-  float buff;
-
-  memcpy(&outbuff[4], &velocity, sizeof(float));
-
-  RCLCPP_INFO(this->get_logger(), "mem value : %c %c %c %c", outbuff[4], outbuff[5], outbuff[6], outbuff[7]);
-
-  memcpy(&buff, &outbuff[4], sizeof(float));
-
-  RCLCPP_INFO(this->get_logger(), "mem value(float) : %f", buff);
+  RCLCPP_INFO(this->get_logger(), "MEM : %u %u %u %u", outbuff[4], outbuff[5], outbuff[6], outbuff[7]);
 
   write(fd, outbuff, 8);
 }

@@ -248,7 +248,7 @@ static THD_FUNCTION(packet_process_thread, arg) {
 		bool rx = true;
 		while (rx) {
 			// Run this loop at 500Hz
-			chThdSleepMilliseconds(2);
+			// chThdSleepMilliseconds(20);
 
 			rx = false;
 
@@ -265,17 +265,21 @@ static THD_FUNCTION(packet_process_thread, arg) {
 
 				volatile unsigned char c = (unsigned char)res;
 
-				// commands_printf("get %c", c);
+				// mc_interface_set_pid_speed(1000);
+
+				commands_printf("get %c", c);
 
 				if (start_data == false) {
 					if (c == 0xff) {
 						start_data = true;
+						// commands_printf("1");
 					}
 				}
 				else {
 					if (received_count == 0) {
 						if (c == 0xff) {
 							received_count++;
+							// commands_printf("2");
 						}
 						else {
 							start_data = false;
@@ -285,6 +289,7 @@ static THD_FUNCTION(packet_process_thread, arg) {
 					else if (received_count == 1) {
 						if (c == MOTOR_ID) {
 							received_count++;
+							// commands_printf("3");
 						}
 						else {
 							start_data = false;
@@ -294,24 +299,29 @@ static THD_FUNCTION(packet_process_thread, arg) {
 					else if (received_count == 2) {
 						instruction = c;
 						received_count++;
+						// commands_printf("4");
 					}
 					else if (received_count == 3) {
 						vel0 = c;
 						received_count++;
+						// commands_printf("5");
 					}
 					else if (received_count == 4) {
 						vel1 = c;
 						received_count++;
+						// commands_printf("6");
 					}
 					else if (received_count == 5) {
 						vel2 = c;
 						received_count++;
+						// commands_printf("7");
 					}
 					else if (received_count == 6) {
 						vel3 = c;
 						start_data = false;
 						received_count = 0;
 						receive_comp = true;
+						// commands_printf("8");
 					}
 				}
 			}
@@ -328,7 +338,7 @@ static THD_FUNCTION(packet_process_thread, arg) {
 				}
 				// set the velocity controller
 				// void mc_interface_set_pid_speed(float rpm);
-				else{
+				else if (instruction == 0xfe){
 					float rpm = 0;
 					unsigned char buff[4];
 
@@ -339,8 +349,10 @@ static THD_FUNCTION(packet_process_thread, arg) {
 
 					memcpy(&rpm, buff, sizeof(float));
 
-					commands_printf("RPM %f", rpm);
-					// mc_interface_set_pid_speed(rpm);
+					commands_printf("111 %f", rpm);
+					mc_interface_set_pid_speed(rpm);
+					// mc_interface_set_pid_pos(1000);
+					commands_printf("222 %f", rpm);
 				}
 
 				// flag down

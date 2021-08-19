@@ -81,62 +81,6 @@ static void send_packet(unsigned char *data, unsigned int len) {
 	}
 }
 
-/*
-* This callback is invoked when a character is received but the application
-* was not ready to receive it, the character is passed as parameter.
-*/
-// static void rxchar(UARTDriver *uartp, uint16_t c){
-//     (void)uartp;
-
-//     if (start_data == false) {
-// 		if (c == 0xff) {
-// 			start_data = true;
-// 		}
-// 	}
-//     else {
-// 		if (received_count == 0) {
-// 			if (c == 0xff) {
-// 				received_count++;
-// 			}
-// 			else {
-// 				start_data = false;
-// 				received_count = 0;
-// 			}
-// 		}
-// 		else if (received_count == 1) {
-// 			if (c == MOTOR_ID) {
-// 				received_count++;
-// 			}
-// 			else {
-// 				start_data = false;
-// 				received_count = 0;
-// 			}
-// 		}
-// 		else if (received_count == 2) {
-// 			instruction = c;
-// 			received_count++;
-// 		}
-// 		else if (received_count == 3) {
-// 			vel0 = c;
-// 			received_count++;
-// 		}
-// 		else if (received_count == 4) {
-// 			vel1 = c;
-// 			received_count++;
-// 		}
-// 		else if (received_count == 5) {
-// 			vel2 = c;
-// 			received_count++;
-// 		}
-// 		else if (received_count == 6) {
-// 			vel3 = c;
-// 			start_data = false;
-// 			received_count = 0;
-// 			receive_comp = true;
-// 		}
-// 	}
-// }
-
 void app_custom_start(void) {
 	commands_printf("Starting the velocity control app");
 
@@ -195,7 +139,7 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 				volatile unsigned char c = (unsigned char)res;
 
-				commands_printf("get %c", c);
+				// commands_printf("get %c", c);
 
 				if (start_data == false) {
 					if (c == 0xff) {
@@ -269,7 +213,9 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 					memcpy(&rpm, buff, sizeof(float));
 
+					commands_printf("111 %f", rpm);
 					commands_printf("RPM %f", rpm);
+					commands_printf("222 %f", rpm);
 					// mc_interface_set_pid_speed(rpm);
 				}
 
