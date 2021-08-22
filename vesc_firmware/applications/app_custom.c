@@ -27,7 +27,6 @@
 
 #include "hw.h"
 #include "packet.h"
-#include "commands.h"
 
 #include "mc_interface.h"
 #include "terminal.h"
@@ -62,7 +61,7 @@ static void send_packet(unsigned char *data, unsigned int len);
 
 // Thread for velocity control
 static THD_FUNCTION(veolocity_control_thread, arg);
-static THD_WORKING_AREA(veolocity_control_thread_wa, 4096); // 4kb stack for this thread
+static THD_WORKING_AREA(veolocity_control_thread_wa, 8192); // 4kb stack for this thread
 
 static SerialConfig uart_cfg = {
 		BAUDRATE,
@@ -124,10 +123,12 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 	chEvtRegisterMaskWithFlags(&HW_UART_DEV.event, &el, EVENT_MASK(0), CHN_INPUT_AVAILABLE);
 
     for (;;) {
-		chEvtWaitAnyTimeout(ALL_EVENTS, ST2MS(10));
+		// chEvtWaitAnyTimeout(ALL_EVENTS, ST2MS(10));
 
 		bool rx = true;
 		while (rx) {
+			chThdSleepMilliseconds(8);
+
 			rx = false;
 
 			if (uart_is_running) {
@@ -139,89 +140,11 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 				volatile unsigned char c = (unsigned char)res;
 
-				// commands_printf("get %c", c);
+				commands_printf("get %c", c);
 
-				if (start_data == false) {
-					if (c == 0xff) {
-						start_data = true;
-					}
-				}
-				else {
-					if (received_count == 0) {
-						if (c == 0xff) {
-							received_count++;
-						}
-						else {
-							start_data = false;
-							received_count = 0;
-						}
-					}
-					else if (received_count == 1) {
-						if (c == MOTOR_ID) {
-							received_count++;
-						}
-						else {
-							start_data = false;
-							received_count = 0;
-						}
-					}
-					else if (received_count == 2) {
-						instruction = c;
-						received_count++;
-					}
-					else if (received_count == 3) {
-						vel0 = c;
-						received_count++;
-					}
-					else if (received_count == 4) {
-						vel1 = c;
-						received_count++;
-					}
-					else if (received_count == 5) {
-						vel2 = c;
-						received_count++;
-					}
-					else if (received_count == 6) {
-						vel3 = c;
-						start_data = false;
-						received_count = 0;
-						receive_comp = true;
-					}
-				}
+
 			}
 
-			// flag up
-			if (receive_comp == true) {
-				// brake command
-				if (instruction == 202) {
-					mc_interface_brake_now();
-				}
-				// release command
-				else if (instruction == 203) {
-					mc_interface_release_motor();
-				}
-				// set the velocity controller
-				// void mc_interface_set_pid_speed(float rpm);
-				else{
-					float rpm = 0;
-					unsigned char buff[4];
-
-					buff[0] = vel0;
-					buff[1] = vel1;
-					buff[2] = vel2;
-					buff[3] = vel3;
-
-					memcpy(&rpm, buff, sizeof(float));
-
-					commands_printf("111 %f", rpm);
-					commands_printf("RPM %f", rpm);
-					commands_printf("222 %f", rpm);
-					// mc_interface_set_pid_speed(rpm);
-				}
-
-				// flag down
-				receive_comp = false;
-        	}
 
 		}
 

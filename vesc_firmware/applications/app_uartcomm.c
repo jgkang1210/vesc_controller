@@ -1,18 +1,14 @@
 /*
 	Copyright 2016 - 2019 Benjamin Vedder	benjamin@vedder.se
-
 	This file is part of the VESC firmware.
-
 	The VESC firmware is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     The VESC firmware is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
@@ -24,20 +20,12 @@
 #include "packet.h"
 #include "commands.h"
 
-#include "conf_general.h"
-
-#include "mc_interface.h"
-#include "terminal.h"
-
-#include "timeout.h"
-
 #include <string.h>
 
 // Settings
 #define BAUDRATE					115200
 #define PACKET_HANDLER				1
 #define PACKET_HANDLER_P			2
-#define MOTOR_ID 					0x00
 
 // Threads
 static THD_FUNCTION(packet_process_thread, arg);
@@ -48,17 +36,6 @@ static volatile bool thread_is_running = false;
 static volatile bool uart_is_running = false;
 static mutex_t send_mutex;
 static bool send_mutex_init_done = false;
-
-static volatile unsigned char instruction = 0;
-static volatile unsigned char vel0 = 0;
-static volatile unsigned char vel1 = 0;
-static volatile unsigned char vel2 = 0;
-static volatile unsigned char vel3 = 0;
-
-static volatile int received_count = 0;
-static volatile bool start_data = false;
-static volatile bool receive_comp = false;
-
 
 #ifdef HW_UART_P_DEV
 static mutex_t send_mutex_p;
@@ -247,9 +224,6 @@ static THD_FUNCTION(packet_process_thread, arg) {
 
 		bool rx = true;
 		while (rx) {
-			// Run this loop at 500Hz
-			// chThdSleepMilliseconds(20);
-
 			rx = false;
 
 			if (uart_is_running) {
@@ -260,104 +234,8 @@ static THD_FUNCTION(packet_process_thread, arg) {
 #endif
 					packet_process_byte(res, PACKET_HANDLER);
 					rx = true;
-					
-				}
-
-				volatile unsigned char c = (unsigned char)res;
-
-				// mc_interface_set_pid_speed(1000);
-
-				commands_printf("get %c", c);
-
-				if (start_data == false) {
-					if (c == 0xff) {
-						start_data = true;
-						// commands_printf("1");
-					}
-				}
-				else {
-					if (received_count == 0) {
-						if (c == 0xff) {
-							received_count++;
-							// commands_printf("2");
-						}
-						else {
-							start_data = false;
-							received_count = 0;
-						}
-					}
-					else if (received_count == 1) {
-						if (c == MOTOR_ID) {
-							received_count++;
-							// commands_printf("3");
-						}
-						else {
-							start_data = false;
-							received_count = 0;
-						}
-					}
-					else if (received_count == 2) {
-						instruction = c;
-						received_count++;
-						// commands_printf("4");
-					}
-					else if (received_count == 3) {
-						vel0 = c;
-						received_count++;
-						// commands_printf("5");
-					}
-					else if (received_count == 4) {
-						vel1 = c;
-						received_count++;
-						// commands_printf("6");
-					}
-					else if (received_count == 5) {
-						vel2 = c;
-						received_count++;
-						// commands_printf("7");
-					}
-					else if (received_count == 6) {
-						vel3 = c;
-						start_data = false;
-						received_count = 0;
-						receive_comp = true;
-						// commands_printf("8");
-					}
 				}
 			}
-
-			// flag up
-			if (receive_comp == true) {
-				// brake command
-				if (instruction == 202) {
-					mc_interface_brake_now();
-				}
-				// release command
-				else if (instruction == 203) {
-					mc_interface_release_motor();
-				}
-				// set the velocity controller
-				// void mc_interface_set_pid_speed(float rpm);
-				else if (instruction == 0xfe){
-					float rpm = 0;
-					unsigned char buff[4];
-
-					buff[0] = vel0;
-					buff[1] = vel1;
-					buff[2] = vel2;
-					buff[3] = vel3;
-
-					memcpy(&rpm, buff, sizeof(float));
-
-					commands_printf("111 %f", rpm);
-					mc_interface_set_pid_speed(rpm);
-					// mc_interface_set_pid_pos(1000);
-					commands_printf("222 %f", rpm);
-				}
-
-				// flag down
-				receive_comp = false;
-        	}
 
 #ifdef HW_UART_P_DEV
 			msg_t res = sdGetTimeout(&HW_UART_P_DEV, TIME_IMMEDIATE);
