@@ -4,7 +4,7 @@
 #define APP_H_
 
 // VESC ID
-#define APPCONF_CONTROLLER_ID 112
+#define APPCONF_CONTROLLER_ID 29
 
 // Timeout
 #define APPCONF_TIMEOUT_MSEC 1000
@@ -40,10 +40,10 @@
 #define APPCONF_UAVCAN_RAW_MODE 0
 
 // APP to Use
-#define APPCONF_APP_TO_USE 3
+#define APPCONF_APP_TO_USE 8
 
 // Control Type
-#define APPCONF_PPM_CTRL_TYPE 0
+#define APPCONF_PPM_CTRL_TYPE 6
 
 // PID Max ERPM
 #define APPCONF_PPM_PID_MAX_ERPM 15000

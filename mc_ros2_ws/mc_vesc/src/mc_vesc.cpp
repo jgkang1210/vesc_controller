@@ -17,8 +17,7 @@ McVesc::McVesc()
       "/cmd_vel", 10, std::bind(&McVesc::cmd_vel_sub_callback, this, _1));
 
   // initiallize the uart comm port
-  // RS485 : "/dev/ttyTHS1" 
-  // USB : "/dev/ttyACM01"
+  // RS485 : "/dev/ttyUSBO" 
   try
   {
     fd_ = open_serial("/dev/ttyUSB0", 115200, 0, 0);
@@ -131,8 +130,8 @@ void McVesc::cmd_vel_sub_callback(const geometry_msgs::msg::Twist::SharedPtr msg
 void McVesc::set_motor_release(int fd, unsigned char ID) const
 {
   unsigned char outbuff[8];
-  outbuff[0] = 0xff;
-  outbuff[1] = 0xff;
+  outbuff[0] = 0x21;
+  outbuff[1] = 0xfe;
   outbuff[2] = ID;
   outbuff[3] = 203;
   outbuff[4] = 0xfe;
@@ -159,8 +158,8 @@ void McVesc::motor_flush(int fd) const
 void McVesc::set_motor_brake(int fd, unsigned char ID) const
 {
   unsigned char outbuff[8];
-  outbuff[0] = 0xff;
-  outbuff[1] = 0xff;
+  outbuff[0] = 0x21;
+  outbuff[1] = 0xfe;
   outbuff[2] = ID;
   outbuff[3] = 202;
   outbuff[4] = 0xfe;
@@ -174,8 +173,8 @@ void McVesc::set_motor_vel(int fd, unsigned char ID, float velocity) const
 {
   unsigned char outbuff[8];
 
-  outbuff[0] = 0xff;
-  outbuff[1] = 0xff;
+  outbuff[0] = 0x21;
+  outbuff[1] = 0xfe;
   outbuff[2] = ID;
   outbuff[3] = 0xfe;
 

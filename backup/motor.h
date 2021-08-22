@@ -16,10 +16,10 @@
 #define MCCONF_SENSOR_MODE 0
 
 // Motor Current Max
-#define MCCONF_L_CURRENT_MAX 35.8288
+#define MCCONF_L_CURRENT_MAX 36.0667
 
 // Motor Current Max Brake
-#define MCCONF_L_CURRENT_MIN -35.8288
+#define MCCONF_L_CURRENT_MIN -36.0667
 
 // Battery Current Max
 #define MCCONF_L_IN_CURRENT_MAX 99
@@ -145,10 +145,10 @@
 #define MCCONF_HALL_ERPM 2000
 
 // Current KP
-#define MCCONF_FOC_CURRENT_KP 0.0144
+#define MCCONF_FOC_CURRENT_KP 0.0153
 
 // Current KI
-#define MCCONF_FOC_CURRENT_KI 49.22
+#define MCCONF_FOC_CURRENT_KI 48.71
 
 // Switching Frequency
 #define MCCONF_FOC_F_SW 25000
@@ -160,7 +160,7 @@
 #define MCCONF_FOC_ENCODER_INVERTED 1
 
 // Encoder Offset
-#define MCCONF_FOC_ENCODER_OFFSET 250.3
+#define MCCONF_FOC_ENCODER_OFFSET 250.337
 
 // Encoder Ratio
 #define MCCONF_FOC_ENCODER_RATIO 20
@@ -190,19 +190,19 @@
 #define MCCONF_FOC_PLL_KI 30000
 
 // Motor Inductance (L)
-#define MCCONF_FOC_MOTOR_L 1.442e-05
+#define MCCONF_FOC_MOTOR_L 1.531e-05
 
 // Motor Inductance Difference (Ld - Lq)
 #define MCCONF_FOC_MOTOR_LD_LQ_DIFF 0
 
 // Motor Resistance (R)
-#define MCCONF_FOC_MOTOR_R 0.04922
+#define MCCONF_FOC_MOTOR_R 0.04871
 
 // Motor Flux Linkage (λ)
-#define MCCONF_FOC_MOTOR_FLUX_LINKAGE 0.003448
+#define MCCONF_FOC_MOTOR_FLUX_LINKAGE 0.003465
 
 // Observer Gain (x1M)
-#define MCCONF_FOC_OBSERVER_GAIN 8.411e+07
+#define MCCONF_FOC_OBSERVER_GAIN 8.329e+07
 
 // Observer Gain At Minimum Duty
 #define MCCONF_FOC_OBSERVER_GAIN_SLOW 0.05
@@ -340,7 +340,7 @@
 #define MCCONF_S_PID_KD_FILTER 0.2
 
 // Minimum ERPM
-#define MCCONF_S_PID_MIN_RPM 900
+#define MCCONF_S_PID_MIN_RPM 200
 
 // Allow Braking
 #define MCCONF_S_PID_ALLOW_BRAKING 1
@@ -427,7 +427,7 @@
 #define MCCONF_SI_MOTOR_POLES 40
 
 // Gear Ratio
-#define MCCONF_SI_GEAR_RATIO 2.76923
+#define MCCONF_SI_GEAR_RATIO 2.769
 
 // Wheel Diameter
 #define MCCONF_SI_WHEEL_DIAMETER 0.083

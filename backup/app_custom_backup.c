@@ -38,6 +38,7 @@
 
 // Settings
 #define BAUDRATE					115200
+#define PACKET_HANDLER				1
 #define MOTOR_ID 					0x00
 
 static volatile unsigned char instruction = 0;
@@ -54,6 +55,9 @@ static volatile bool receive_comp = false;
 static volatile bool thread_is_running = false;
 static volatile bool uart_is_running = false;
 
+// Private functions
+static void process_packet(unsigned char *data, unsigned int len);
+static void send_packet(unsigned char *data, unsigned int len);
 
 // Thread for velocity control
 static THD_FUNCTION(veolocity_control_thread, arg);
@@ -66,11 +70,20 @@ static SerialConfig uart_cfg = {
 		0
 };
 
+static void process_packet(unsigned char *data, unsigned int len) {
+	commands_process_packet(data, len, app_uartcomm_send_packet);
+}
+
+static void send_packet(unsigned char *data, unsigned int len) {
+	if (uart_is_running) {
+		sdWrite(&HW_UART_DEV, data, len);
+	}
+}
 
 void app_custom_start(void) {
 	commands_printf("Starting the velocity control app");
 
-
+	packet_init(send_packet, process_packet, PACKET_HANDLER);
 
 	// Start the veolocity_control thread
 	if (!thread_is_running) {
@@ -114,19 +127,21 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 		bool rx = true;
 		while (rx) {
-			// chThdSleepMilliseconds(2);
+			chThdSleepMilliseconds(8);
 
 			rx = false;
 
 			if (uart_is_running) {
-				msg_t res = sdGetTimeout(&HW_UART_DEV, TIME_INFINITE);
-				// commands_printf("get %d", res);
-				
+				msg_t res = sdGetTimeout(&HW_UART_DEV, TIME_IMMEDIATE);
 				if (res != MSG_TIMEOUT) {
+					packet_process_byte(res, PACKET_HANDLER);
 					rx = true;
 				}
 
 				volatile unsigned char c = (unsigned char)res;
+
+				commands_printf("get %c", c);
+
 
 				if (start_data == false) {
 					if (c == 0x21) {
@@ -206,12 +221,13 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 					commands_printf("111 %f", rpm);
 					commands_printf("222 %f", rpm);
-					mc_interface_set_pid_speed(rpm);
+					// mc_interface_set_pid_speed(rpm);
 				}
 
 				// flag down
 				receive_comp = false;
         	}
+
 
 		}
 
