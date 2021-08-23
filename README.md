@@ -5,6 +5,9 @@
 - Contains vesc firmware description
 - ROS2 based velocity publisher
 
+영상
+https://youtu.be/iEY4vKrj5cI
+
 vesc tool 링크
 
 vesc tool free
