@@ -24,7 +24,7 @@
 #include "hal.h"
 #include "hw.h"
 #include "mc_interface.h"
-#include "commands.h"
+#include "packet.h"
 
 #include <string.h>
 

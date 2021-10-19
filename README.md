@@ -56,6 +56,12 @@ make build/VESC_fw.bin
 
 이 후 VESC tool 에서 오른쪽 메뉴 firmware 에서 custom file 에서 해당 bin file 불러옴.
 
+conf_general.h 파일에서 fw 버전을 설정할 수 있다.
+현재 5.2 version
+
+custom app 에서 하나 문제 였던 점, 타임아웃을 무한대로 해두어서 문제가 발생했었다.
+적당히 작은 시간으로 해주어야 한다.
+
 ## FOC contorl setting
 
 Configuration file 을 받아오는 방법
