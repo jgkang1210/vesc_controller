@@ -119,7 +119,8 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 			rx = false;
 
 			if (uart_is_running) {
-				msg_t res = sdGetTimeout(&HW_UART_DEV, TIME_INFINITE);
+				// change timeout time
+				msg_t res = sdGetTimeout(&HW_UART_DEV, ST2MS(10));
 				// commands_printf("get %d", res);
 				
 				if (res != MSG_TIMEOUT) {
@@ -206,7 +207,7 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 					commands_printf("111 %f", rpm);
 					commands_printf("222 %f", rpm);
-					mc_interface_set_pid_speed(rpm);
+					// mc_interface_set_pid_speed(rpm);
 				}
 
 				// flag down

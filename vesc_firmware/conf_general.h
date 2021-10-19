@@ -65,8 +65,8 @@
 
 // change the hw version !
 
-#define HW_SOURCE "hw_410.c" // Also for 4.11 and 4.12
-#define HW_HEADER "hw_410.h" // Also for 4.11 and 4.12
+// #define HW_SOURCE "hw_410.c" // Also for 4.11 and 4.12
+// #define HW_HEADER "hw_410.h" // Also for 4.11 and 4.12
 
 // Benjamins first HW60 PCB with PB5 and PB6 swapped
 //#define HW60_VEDDER_FIRST_PCB
@@ -76,8 +76,8 @@
 //#define HW60_IS_MK4
 // #define HW60_IS_MK5
 
-// #define HW_SOURCE "hw_60.c"
-// #define HW_HEADER "hw_60.h"
+#define HW_SOURCE "hw_60.c"
+#define HW_HEADER "hw_60.h"
 
 //#define HW_SOURCE "hw_r2.c"
 //#define HW_HEADER "hw_r2.h"
