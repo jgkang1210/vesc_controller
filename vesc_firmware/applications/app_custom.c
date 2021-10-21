@@ -120,7 +120,7 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 			if (uart_is_running) {
 				// change timeout time
-				msg_t res = sdGetTimeout(&HW_UART_DEV, ST2MS(10));
+				msg_t res = sdGetTimeout(&HW_UART_DEV, ST2MS(50));
 				// commands_printf("get %d", res);
 				
 				if (res != MSG_TIMEOUT) {
@@ -195,8 +195,10 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 				// set the velocity controller
 				// void mc_interface_set_pid_speed(float rpm);
 				else if (instruction == 0xfe){
+					const float MAXRPM = 25000;
 					float rpm = 0;
 					unsigned char buff[4];
+					float cur = 0; // current for the motor  * The relative current value, range [-1.0 1.0]
 
 					buff[0] = vel0;
 					buff[1] = vel1;
@@ -207,7 +209,17 @@ static THD_FUNCTION(veolocity_control_thread, arg) {
 
 					commands_printf("111 %f", rpm);
 					commands_printf("222 %f", rpm);
-					// mc_interface_set_pid_speed(rpm);
+
+					if (rpm > MAXRPM){
+						rpm = MAXRPM;
+					}
+					if (rpm < -MAXRPM){
+						rpm = -MAXRPM;
+					}
+					
+					cur = rpm/MAXRPM;
+
+					mc_interface_set_current_rel(cur);
 				}
 
 				// flag down
